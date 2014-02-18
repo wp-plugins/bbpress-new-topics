@@ -1,0 +1,14 @@
+.new-topic {}
+
+.new-topic-notifier {
+	display: inline;
+	padding: .2em .6em .3em;
+	font-size: 85%;
+	line-height: 1;
+	color: #ffffff;
+	background-color: #d9534f;
+	text-align: center;
+	white-space: nowrap;
+	vertical-align: baseline;
+	border-radius: .25em;
+}
