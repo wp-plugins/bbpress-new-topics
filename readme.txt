@@ -5,8 +5,8 @@ Tags: bbpress, notification, new topics, new replies, unread
 Text Domain: new-topics
 Domain Path: /languages
 Requires at least: 3.5
-Tested up to: 3.8
-Stable tag: 1.0.0
+Tested up to: 4.3
+Stable tag: 1.0.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -33,6 +33,13 @@ All new topics have the class 'new-topic'. You can use that CSS selector to styl
 1. All new topics and topics with unread replies have the 'New' label prepended before the title.
 
 == Change Log ==
+
+= 2015-08-18 v1.0.1 =
+* Small update to code
+* Added participants to user array
+* Added new tag to before forum title
+* Fixed issue with removing new tag from read topics
+* Updated version and stable tag
 
 = 2014-02-18 v1.0.0 =
 Initial Public Release

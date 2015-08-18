@@ -2,16 +2,16 @@
 /*
 Plugin Name: bbPress New Topics
 Plugin URI: http://bavotasan.com/2014/bbpress-new-topics-plugin/
-Description: Displays a "new" label on topics that are unread or have unread replies for all keymasters and moderators.
+Description: Displays a "new" label on topics that are unread or have unread replies for all keymasters, moderators and participants.
 Author: c.bavota
-Version: 1.0.0
+Version: 1.0.1
 Author URI: http://bavotasan.com
 Text Domain: new-topics
 Domain Path: /languages
 License: GPL2
 */
 
-/*  Copyright 2014  c.bavota  (email : cbavota@gmail.com)
+/*  Copyright 2015  c.bavota  (email : cbavota@gmail.com)
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License, version 2, as
@@ -29,7 +29,7 @@ License: GPL2
 
 // Plugin version
 if ( ! defined( 'NEW_TOPICS_VERSION' ) ) {
-	define( 'NEW_TOPICS_VERSION', '1.0.0' );
+	define( 'NEW_TOPICS_VERSION', '1.0.1' );
 }
 
 //update_user_meta( 1, 'bbp_new_topics', array( 2895 ) );
@@ -49,6 +49,8 @@ if ( ! class_exists( 'BBP_New_Topics' ) ) {
 			add_filter( 'bbp_get_topic_class', array( $this, 'bbp_get_topic_class' ), 10, 2 );
 
 			add_action( 'bbp_theme_before_topic_title', array( $this, 'bbp_theme_before_topic_title' ) );
+			add_action( 'bbp_template_before_single_topic', array( $this, 'bbp_template_before_single_topic' ) );
+			add_action( 'bbp_theme_before_forum_title', array( $this, 'bbp_theme_before_forum_title' ) );
         }
 
         public function admin_init() {
@@ -79,7 +81,7 @@ if ( ! class_exists( 'BBP_New_Topics' ) ) {
 				if ( $author != $admin->ID ) {
 					$new_topics_array = (array) get_user_meta( $admin->ID, 'bbp_new_topics', true );
 
-					if ( ! in_array( $topic_id, $new_topics_array ) ) {
+					if ( ! in_array( $topic_id, array_filter( $new_topics_array ) ) ) {
 						$new_topics_array[] = (int) $topic_id;
 
 						update_user_meta( $admin->ID, 'bbp_new_topics', $new_topics_array );
@@ -105,7 +107,7 @@ if ( ! class_exists( 'BBP_New_Topics' ) ) {
 			$user_id = get_current_user_id();
 			$new_topics_array = (array) get_user_meta( $user_id, 'bbp_new_topics', true );
 
-		    if ( in_array( $topic_id, $new_topics_array ) )
+		    if ( in_array( $topic_id, array_filter( $new_topics_array ) ) )
 		        $classes[] = 'new-topic';
 
 		    return $classes;
@@ -121,32 +123,70 @@ if ( ! class_exists( 'BBP_New_Topics' ) ) {
 			$topic_id = bbp_get_topic_id();
 			$new_topics_array = (array) get_user_meta( $user_id, 'bbp_new_topics', true );
 
-		    if ( in_array( $topic_id, $new_topics_array ) ) {
-				if ( bbp_is_single_topic () ) {
-					unset( $new_topics_array[array_search( (int) $topic_id, $new_topics_array )] );
+		    if ( in_array( $topic_id, array_filter( $new_topics_array ) ) ) {
+				echo '<span class="new-topic-notifier">' . __( 'New', 'new-topics' ) . '</span> ';
+			}
+		}
 
-					update_user_meta( $user_id, 'bbp_new_topics', (array) $new_topics_array );
-				} else {
+		/**
+		 * Remove topic from unread topics array upon viewing.
+		 *
+		 * @since 1.0.1
+		 */
+		public function bbp_template_before_single_topic() {
+			$user_id = get_current_user_id();
+			$topic_id = bbp_get_topic_id();
+			$new_topics_array = (array) get_user_meta( $user_id, 'bbp_new_topics', true );
+
+		    if ( in_array( (int) $topic_id, $new_topics_array ) ) {
+				unset( $new_topics_array[array_search( (int) $topic_id, $new_topics_array )] );
+
+				update_user_meta( $user_id, 'bbp_new_topics', (array) $new_topics_array );
+			}
+		}
+
+
+		/**
+		 * Adds 'New' label to all forums that contain topics which appear in the unread topics array.
+		 *
+		 * @since 1.0.1
+		 */
+		public function bbp_theme_before_forum_title(){
+			$user_id = get_current_user_id();
+			$forum_id = bbp_get_forum_id();
+			$new_topics_array = (array) get_user_meta( $user_id, 'bbp_new_topics', true );
+
+			global $wpdb;
+			$new_query = 'SELECT post_id FROM ' . $wpdb->prefix . 'postmeta WHERE meta_key = "_bbp_forum_id" AND meta_value = "' . $forum_id. '"';
+
+			$result = $wpdb->get_results( $new_query );
+
+			foreach( $result as $row ) {
+				if ( in_array( (int) $row->post_id, array_filter( $new_topics_array ) ) ) {
 					echo '<span class="new-topic-notifier">' . __( 'New', 'new-topics' ) . '</span> ';
 				}
 			}
 		}
 
 		/**
-		 * Gathers all keymasters and moderators.
+		 * Gathers all keymasters, moderators and participants.
 		 *
 		 * @since 1.0.0
 		 */
 		public function bbp_get_admins() {
-			$keymaster = get_users( array(
-				'role' => 'bbp_keymaster',
-			) );
+            $keymaster = get_users( array(
+                'role' => 'bbp_keymaster',
+            ) );
 
-			$moderators = get_users( array(
-				'role' => 'bbp_moderator',
-			) );
+            $moderators = get_users( array(
+                'role' => 'bbp_moderator',
+            ) );
 
-			return array_merge( $keymaster, $moderators );
+            $participant = get_users( array(
+                'role' => 'bbp_participant',
+            ) );
+
+            return array_merge( $keymaster, $moderators, $participant );
 		}
     }
 }
