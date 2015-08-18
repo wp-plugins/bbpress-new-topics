@@ -1,0 +1,35 @@
+msgid ""
+msgstr ""
+"Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
+"Project-Id-Version: bbPress New Topics\n"
+"POT-Creation-Date: 2015-08-18 12:01-0400\n"
+"PO-Revision-Date: 2015-08-18 12:01-0400\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: bbpress-new-topics.php:127 bbpress-new-topics.php:166
+msgid "New"
+msgstr ""
+
+#. Plugin Name of the plugin/theme
+msgid "bbPress New Topics"
+msgstr ""
+
+#. Plugin URI of the plugin/theme
+msgid "http://bavotasan.com/2014/bbpress-new-topics-plugin/"
+msgstr ""
+
+#. Description of the plugin/theme
+msgid ""
+"Displays a \"new\" label on topics that are unread or have unread replies "
+"for all keymasters, moderators and participants."
+msgstr ""
+
+#. Author of the plugin/theme
+msgid "c.bavota"
+msgstr ""
+
+#. Author URI of the plugin/theme
+msgid "http://bavotasan.com"
+msgstr ""
